@@ -1,6 +1,7 @@
 from typing import Union
 import uvicorn
 from fastapi import FastAPI
+from routers import hydroposts
 from tortoise.contrib.fastapi import register_tortoise
 import configparser
 
@@ -11,6 +12,10 @@ DB_URL = config['DATABASE']['DatabaseType']+"://"+config['DATABASE']['Username']
 
 
 app = FastAPI()
+
+
+app.include_router(hydroposts.router)
+
 
 """
 @app.get("/")

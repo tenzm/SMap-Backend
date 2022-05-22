@@ -1,7 +1,7 @@
 from tortoise import fields
 from tortoise.models import Model
 
-class hydropost_model(Model):
+class hydroposts(Model):
     id = fields.IntField(pk = True)
     region = fields.TextField()
     river = fields.TextField()

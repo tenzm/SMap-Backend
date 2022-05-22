@@ -1,16 +1,18 @@
 from typing import Union
 import uvicorn
 from fastapi import FastAPI
-import json
+from tortoise.contrib.fastapi import register_tortoise
+import configparser
 
-#TODO: Переделать на бд
-with open('./SberMap/data/positions.txt') as json_file:
-    data = json.load(json_file)
-data.keys()
+config = configparser.ConfigParser()
+config.read("config.ini")
+
+DB_URL = config['DATABASE']['DatabaseType']+"://"+config['DATABASE']['Username']+":"+config['DATABASE']['Password']+"@"+config['DATABASE']['Hostname'] + ":" + config['DATABASE']['Port'] + "/" + config['DATABASE']['DatabaseName']
+
 
 app = FastAPI()
 
-
+"""
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
@@ -19,6 +21,15 @@ def read_root():
 @app.get("/items/{item_id}")
 def read_item(item_id: int, q: Union[str, None] = None):
     return {"item_id": item_id, "q": q}
+"""
+
+register_tortoise(
+    app,
+    db_url=DB_URL,
+    modules={"models": ["db.models"]},
+    generate_schemas=True,
+)
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", port=8000, host="localhost", reload=True)

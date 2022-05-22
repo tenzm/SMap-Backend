@@ -3,7 +3,7 @@ import uvicorn
 from fastapi import FastAPI
 import json
 
-#todo: Переделать на бд
+#TODO: Переделать на бд
 with open('./SberMap/data/positions.txt') as json_file:
     data = json.load(json_file)
 data.keys()

@@ -29,6 +29,6 @@ async def load_hydroposts(json_file: bytes = File()):
             pass
     return {"detail": "success"}
 
-@router.get("/load_hydroposts", tags=["hydropost"])
-async def load_hydroposts(rect: GetHydropostByRectRequest):
-    pass
+@router.get("/get_hydroposts_by_rect", tags=["hydropost"])
+async def load_hydroposts(x0: float, y0: float, x1: float, y1: float):
+    return await hydroposts_crud.get_hydroposts_by_rect(x0, y0, x1, y1)

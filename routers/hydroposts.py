@@ -30,5 +30,14 @@ async def load_hydroposts(json_file: bytes = File()):
     return {"detail": "success"}
 
 @router.get("/get_hydroposts_by_rect", tags=["hydropost"])
-async def load_hydroposts(x0: float, y0: float, x1: float, y1: float):
+async def get_hydroposts_by_rect(x0: float, y0: float, x1: float, y1: float):
     return await hydroposts_crud.get_hydroposts_by_rect(x0, y0, x1, y1)
+
+
+@router.get("/get_hydroposts_history", tags=["hydropost"])
+async def get_hydroposts_history(post_id: int, year: int, month: int, day: int):
+    return hydroposts_crud.get_history(region='Amur', post_id=post_id, year=year, month=month, day=day)
+    
+@router.get("/get_hydroposts_calendar", tags=["hydropost"])
+async def get_hydroposts_calendar(post_id: int):
+    return hydroposts_crud.get_calendar(region='Amur', post_id=post_id)

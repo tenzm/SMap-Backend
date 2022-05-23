@@ -5,6 +5,8 @@ from routers import hydroposts
 from tortoise.contrib.fastapi import register_tortoise
 import configparser
 
+from fastapi.middleware.cors import CORSMiddleware
+
 config = configparser.ConfigParser()
 config.read("config.ini")
 
@@ -13,6 +15,21 @@ DB_URL = config['DATABASE']['DatabaseType']+"://"+config['DATABASE']['Username']
 
 app = FastAPI()
 
+
+origins = [
+    "http://localhost.tiangolo.com",
+    "https://localhost.tiangolo.com",
+    "http://localhost",
+    "http://localhost:8080",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"], # Allows all methods
+    allow_headers=["*"], # Allows all headers
+)
 
 app.include_router(hydroposts.router)
 
@@ -37,4 +54,4 @@ register_tortoise(
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", port=8000, host="localhost", reload=True)
+    uvicorn.run("main:app", port=8000, host="0.0.0.0", reload=True)

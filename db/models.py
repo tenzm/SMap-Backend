@@ -8,4 +8,5 @@ class hydroposts(Model):
     river = fields.TextField()
     latitude = fields.FloatField()
     longitude = fields.FloatField()
+    post_type = fields.IntField() # 0 - метео, 1 - гидро, 2 - снег
 

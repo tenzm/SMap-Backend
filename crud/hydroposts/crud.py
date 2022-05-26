@@ -35,7 +35,7 @@ class HydropostsCrud(BaseCrud):
         return s3.get_object(Bucket='meteo-data', Key = filename)['Body'].read().decode("utf-8")
 
     async def create_hydropost(self, req: CreateHydropostRequest):
-        return await hydroposts.create(**{'region': req.region, 'post_id': req.post_id, 'river': req.river, 'latitude': req.latitude, 'longitude': req.longitude})
+        return await hydroposts.create(**{'region': req.region, 'post_id': req.post_id, 'river': req.river, 'latitude': req.latitude, 'longitude': req.longitude, 'post_type': req.post_type})
 
     async def get_hydroposts_by_rect(self, x0: float, y0: float, x1: float, y1: float):
         result = await hydroposts.filter(Q(Q(latitude__gte=x0), Q(latitude__lte=x1), Q(longitude__gte=y0), Q(longitude__lte=y1), join_type="AND"))
@@ -46,7 +46,8 @@ class HydropostsCrud(BaseCrud):
                 'region': item.region,
                 'river': item.river,
                 'latitude': item.latitude,
-                'longitude': item.longitude
+                'longitude': item.longitude,
+                'post_type': item.post_type
             })
         return response
 
@@ -57,6 +58,31 @@ class HydropostsCrud(BaseCrud):
             if (f'{year:04}'+'-'+f'{month:02}'+'-'+f'{day:02}' in line):
                 return int(line.split(';')[1])
         raise HTTPException(status_code=404, detail="Item not found")
+
+    async def get_hydroposts_by_date_and_rect(self, x0: float, y0: float, x1: float, y1: float, year:int, month:int, day:int):
+        result = await hydroposts.filter(Q(Q(latitude__gte=x0), Q(latitude__lte=x1), Q(longitude__gte=y0), Q(longitude__lte=y1), join_type="AND"))
+        response = list()
+        print(result)
+        for item in result:
+            data = {
+                'post_id': item.post_id,
+                'region': item.region,
+                'river': item.river,
+                'latitude': item.latitude,
+                'longitude': item.longitude,
+                'post_type': item.post_type}
+            try:
+                data['value'] = self.get_history('Amur', item.post_id,year, month, day)
+                data['status'] = 200
+            except:
+                data['value'] = 0
+                data['status'] = 404
+            response.append(data)
+
+
+        return response
+
+
         
 
     def get_calendar(self, region: str, post_id: int):

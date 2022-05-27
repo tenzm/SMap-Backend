@@ -85,7 +85,7 @@ class HydropostsCrud(BaseCrud):
     async def get_hydropost_by_id(self, pid: int):
         result = await hydroposts.filter(post_id = pid)
         return result
-        
+                
     def get_hydroposts_interval(self, post_id: int, day0: int, month0: int, year0: int, day1: int, month1: int, year1: int, step: int):
         pass
 

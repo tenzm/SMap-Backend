@@ -18,3 +18,9 @@ class GetHydropostByRectRequest(BaseModel):
     longitude_to: float
     post_type: str
 
+class Date(BaseModel):
+    day: int
+    month: int
+    year: int
+
+

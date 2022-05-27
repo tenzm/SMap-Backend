@@ -8,6 +8,7 @@ from crud.hydroposts import hydroposts_crud
 from models.hydroposts_requests import CreateHydropostRequest, GetHydropostByRectRequest
 import pandas as pd
 from fastapi import FastAPI, File, UploadFile
+from fastapi import HTTPException
 import io 
 
 router = APIRouter()
@@ -69,3 +70,16 @@ async def get_hydroposts_history(post_id: int, year: int, month: int, day: int):
 @router.get("/get_hydroposts_calendar", tags=["hydropost"])
 async def get_hydroposts_calendar(post_id: int):
     return hydroposts_crud.get_calendar(region='Amur', post_id=post_id)
+
+@router.get("/get_hydroposts_interval", tags=["hydropost"])
+async def get_hydroposts_calendar(post_id: int):
+    return hydroposts_crud.get_calendar(region='Amur', post_id=post_id)
+
+@router.get("/get_hydropost_by_id", tags=["hydropost"])
+async def get_hydropost_by_id(post_id: int):
+    resp = await hydroposts_crud.get_hydropost_by_id(post_id)
+    try:
+        print(resp[0])
+        return resp[0]
+    except:
+        raise HTTPException(status_code=404, detail="Item not found")

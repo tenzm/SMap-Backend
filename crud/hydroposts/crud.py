@@ -1,3 +1,4 @@
+from pdb import post_mortem
 import pydantic
 import json
 import boto3
@@ -78,14 +79,18 @@ class HydropostsCrud(BaseCrud):
                 data['value'] = 0
                 data['status'] = 404
             response.append(data)
-
-
         return response
 
 
+    async def get_hydropost_by_id(self, pid: int):
+        result = await hydroposts.filter(post_id = pid)
+        return result
         
 
     def get_calendar(self, region: str, post_id: int):
         decoded_data = self.get_csv_by_id(region=region, post_id=post_id)
-        response = [line.split(';')[0] for line in decoded_data.split('\n') if not "Time" in line]
-        return response
+        print(decoded_data.split('\n')), 
+        response1 = [line.split(';')[0] for line in decoded_data.split('\n') if (not "Time" in line) and len(line)>0]       
+        response2 = [line.split(';')[1] for line in decoded_data.split('\n') if (not "Time" in line) and len(line)>0]
+
+        return [response1, response2]

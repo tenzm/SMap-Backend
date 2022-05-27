@@ -1,6 +1,7 @@
 import configparser
 import csv
 import json
+from urllib import response
 from fastapi import APIRouter, Depends
 from tortoise.contrib.fastapi import register_tortoise
 from tortoise.contrib.pydantic import pydantic_model_creator
@@ -10,6 +11,7 @@ import pandas as pd
 from fastapi import FastAPI, File, UploadFile
 from fastapi import HTTPException
 import io 
+from datetime import timedelta, datetime
 
 router = APIRouter()
 
@@ -72,14 +74,34 @@ async def get_hydroposts_calendar(post_id: int):
     return hydroposts_crud.get_calendar(region='Amur', post_id=post_id)
 
 @router.get("/get_hydroposts_interval", tags=["hydropost"])
-async def get_hydroposts_calendar(post_id: int):
-    return hydroposts_crud.get_calendar(region='Amur', post_id=post_id)
+async def get_hydroposts_interval(post_id: int, day0: int, month0: int, year0: int, day1: int, month1: int, year1: int, step: int):
+    data = await get_hydroposts_calendar(post_id)
+    calendar = data[0]
+    values = data[1]
+
+    start = datetime(year0, month0, day0)
+    end = datetime(year1, month1, day1)
+
+    pos = 0
+
+    resp_dates = list()
+    resp_values = list()
+
+    while start < end:
+        while datetime.strptime(calendar[pos], '%Y-%m-%d') < start:
+            pos += 1
+        print(pos)
+        resp_dates.append(calendar[pos])
+        resp_values.append(values[pos])
+        start = start + timedelta(step)
+        print(start)
+
+    return [resp_dates, resp_values]
 
 @router.get("/get_hydropost_by_id", tags=["hydropost"])
 async def get_hydropost_by_id(post_id: int):
     resp = await hydroposts_crud.get_hydropost_by_id(post_id)
     try:
-        print(resp[0])
         return resp[0]
     except:
         raise HTTPException(status_code=404, detail="Item not found")

@@ -86,6 +86,8 @@ class HydropostsCrud(BaseCrud):
         result = await hydroposts.filter(post_id = pid)
         return result
         
+    def get_hydroposts_interval(self, post_id: int, day0: int, month0: int, year0: int, day1: int, month1: int, year1: int, step: int):
+        pass
 
     def get_calendar(self, region: str, post_id: int):
         decoded_data = self.get_csv_by_id(region=region, post_id=post_id)

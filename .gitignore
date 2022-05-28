@@ -11,7 +11,7 @@ __pycache__/
 # C extensions
 *.so
 
-minio-storage/
+#minio-storage/
 
 # Distribution / packaging
 .Python

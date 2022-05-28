@@ -23,6 +23,7 @@ class HydropostsCrud(BaseCrud):
     pydantic_model = pydantic_model_creator(hydroposts, name="hydroposts")
     target_model = hydroposts
 
+    # Получение csv из s3
     def get_csv_by_id(self, region: str, post_id: int):
         posts_histories = s3.list_objects(Bucket = 'meteo-data', Prefix=f'/{ region }/')
         filename = ''
@@ -35,9 +36,11 @@ class HydropostsCrud(BaseCrud):
 
         return s3.get_object(Bucket='meteo-data', Key = filename)['Body'].read().decode("utf-8")
 
+    # Создание нового гидропоста в базе данных
     async def create_hydropost(self, req: CreateHydropostRequest):
         return await hydroposts.create(**{'region': req.region, 'post_id': req.post_id, 'river': req.river, 'latitude': req.latitude, 'longitude': req.longitude, 'post_type': req.post_type})
 
+    # Получение гидропоста по заданной области
     async def get_hydroposts_by_rect(self, x0: float, y0: float, x1: float, y1: float):
         result = await hydroposts.filter(Q(Q(latitude__gte=x0), Q(latitude__lte=x1), Q(longitude__gte=y0), Q(longitude__lte=y1), join_type="AND"))
         response = list()
@@ -53,6 +56,7 @@ class HydropostsCrud(BaseCrud):
         return response
 
 
+    # Получение истории по заданному гидропосту в заданный момент времени
     def get_history(self, region: str, post_id: int, year: int, month: int, day: int):
         decoded_data = self.get_csv_by_id(region=region, post_id=post_id)
         for line in decoded_data.split('\n'):
@@ -60,6 +64,7 @@ class HydropostsCrud(BaseCrud):
                 return int(line.split(';')[1])
         raise HTTPException(status_code=404, detail="Item not found")
 
+    # Получение всех гидропостов по дате в заданной области
     async def get_hydroposts_by_date_and_rect(self, x0: float, y0: float, x1: float, y1: float, year:int, month:int, day:int):
         result = await hydroposts.filter(Q(Q(latitude__gte=x0), Q(latitude__lte=x1), Q(longitude__gte=y0), Q(longitude__lte=y1), join_type="AND"))
         response = list()
@@ -81,14 +86,12 @@ class HydropostsCrud(BaseCrud):
             response.append(data)
         return response
 
-
+    # Получение информации о гидропосте по его id
     async def get_hydropost_by_id(self, pid: int):
         result = await hydroposts.filter(post_id = pid)
         return result
-                
-    def get_hydroposts_interval(self, post_id: int, day0: int, month0: int, year0: int, day1: int, month1: int, year1: int, step: int):
-        pass
 
+    # Получение данных всех показаний ао определенному гидропосту
     def get_calendar(self, region: str, post_id: int):
         decoded_data = self.get_csv_by_id(region=region, post_id=post_id)
         print(decoded_data.split('\n')), 
